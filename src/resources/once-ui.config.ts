@@ -14,7 +14,7 @@ import {
 import { home, person, social } from "./content";
 
 // IMPORTANT: Replace with your own domain address - it's used for SEO in meta tags and schema
-const baseURL: string = "https://siddicky.ca";
+const baseURL: string = "https://portfolio.siddicky.ca";
 
 const routes: RoutesConfig = {
   "/": true,
