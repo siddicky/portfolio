@@ -1,0 +1,55 @@
+---
+title: "The Be Human Company — AI Governance Audit Framework"
+publishedAt: "2026-08-31"
+summary: "An auditor-ready AI governance framework for Canadian SMEs: 70 controls across 8 domains, a Python scoring CLI, and a sandbox that turns AI adoption into audit evidence."
+images: ["/images/projects/thebehumancompany/cover.jpg"]
+---
+
+The Be Human Company is my consultancy product for Canadian small and medium-sized enterprises. Its AI Governance Audit Framework is auditor-ready by design: it moves a business from unmanaged AI experimentation to secure, auditable, sovereignty-aligned adoption, and it turns the white paper *Securing Canada's AI Future* into something a consultant can actually run on an engagement.
+
+## What it claims, and what it doesn't
+
+The framework helps SMEs demonstrate responsible AI adoption, due diligence, and operational readiness. It is not a compliance guarantee. The AI Governance Maturity Score is not a certification, and no government recognizes it as one. What it does is prepare clients for future procurement, certification, and audit expectations, with ISED's *Canada's National AI Strategy: AI for All* as an alignment anchor rather than a statute.
+
+## One spine, four deliverables
+
+Every deliverable reads from the same source of truth: the controls dataset in `framework/controls.yaml`.
+
+- **Document kit.** The auditor's methodology, questionnaires and checklists, and report and evidence templates, rendered from that spine.
+- **Scoring tool.** A Python CLI that consumes a filled assessment and computes the AI Governance Maturity Score, a per-domain heatmap, a top-10 remediation list, and a PDF report.
+- **Sandbox accelerator.** An ephemeral, consultancy-operated sandbox that runs a sample AI workflow end to end in isolation.
+- **App-stack audit.** The vendor track: an audit of the third-party apps a client's store already runs, what they cost, and what data they can reach.
+
+The document kit and the scoring tool never define controls separately. Both read `controls.yaml`.
+
+## How the maturity score works
+
+The model scores 70 controls across eight domains: `governance`, `privacy_data`, `cybersecurity`, `vendor_risk`, `sovereignty`, `operational_risk`, `workforce_readiness`, and `transparency_audit`. Each control is rated 0 to 5. Domain results roll up to a 0-100 overall score, banded to a named level that runs from Unmanaged to Sovereign-ready. A curated 15-control rapid subset is the lead entry point.
+
+The scoring math stays configurable. N/A ratings are excluded from their domain mean. Domain percentages combine through a weighted mean, equal weights by default, and a `cyber_sovereignty` preset can up-weight cybersecurity and sovereignty. The top-10 remediation list surfaces the ten lowest-scored controls and prints each control's remediation text, which lives in the controls dataset rather than in code.
+
+## Two ways in
+
+Work runs along two pathways. `greenfield_enablement` serves a business with no AI yet and sets it up securely. `exposure_gap_assessment` serves one already running AI and assesses its exposure, then remediates. The rapid AI exposure assessment is the scoped entry point for the most common starting question: "we already have someone using AI."
+
+The flagship control is deletion-on-request for employee AI conversation histories, `cyber-04` and `priv-05`. It is the cleanest proof that unmanaged consumer tools can't meet deletion, departure, and legal-hold obligations.
+
+## A sandbox that produces evidence, not claims
+
+The sandbox accelerator stands up an isolated, ephemeral mock stack: a mock inbox and mock CRM, seeded with synthetic-only data. A sample email-triage AI workflow runs end to end against it while the client's production systems stay untouched. The run emits an audit-evidence artifact for control `ops-09`, which checks that AI changes are validated in a safe environment before production, and it purges all data on teardown, dogfooding its own deletion-on-request control.
+
+The same demo runs on two interchangeable substrates behind one seam. The default local substrate is deterministic and fully offline, and it doubles as the CI merge gate. The LangSmith substrate runs the identical agent graph inside a real LangSmith Sandbox VM with egress locked down by an allowlist.
+
+The agent reaches the mock inbox and CRM only through a single injected gateway. Isolation is enforced by synthetic-only seeding, an egress allowlist, an import guard on the sandbox agent code, and the absence of any real adapters. Evidence artifacts report an observed maturity level from 0 to 5. Not a pass/fail, and never a certification or compliance claim.
+
+## What the vendor apps can reach
+
+Assessing how a business uses AI answers only half the question. The app-stack audit answers the other half: what the third-party apps a store already runs can reach, and what they cost. The report covers total and redundant or dormant app spend, a per-app exposure rating on a scale from Low to Critical, a read and change map of which apps touch which data, data-loss risk, hosting jurisdiction, and a ranked set of managed-agent workflows that would displace apps at least privilege.
+
+It produces no second score. It produces evidence that feeds specific controls: `vendor-09`, `vendor-10`, `priv-09`, `cyber-10`, and `sov-09`. Authenticated collection requires written scope sign-off from the client. Credentials never enter the repo, the inventory, or a report.
+
+## Run it
+
+The scoring tool needs Python 3.11 or newer, plus `pyyaml` and `weasyprint` for PDF rendering. One command scores the worked example against the full questionnaire. Switch to the rapid profile for a summary without the PDF, or apply the `cyber_sovereignty` weights preset. The CLI prints a readable summary with the organization, pathway, overall score and band, per-domain heatmap, and top-10 remediation, then writes a styled PDF unless you pass `--no-pdf`. The human checklists regenerate from the spine with a single script. Development runs on pytest for tests and ruff for linting.
+
+The result is a framework that behaves the way it asks its clients to behave. Its claims stay inside the evidence, its remediation lives in data, and deletion applies to its own sandbox first.
