@@ -1,0 +1,50 @@
+---
+title: "oh-my-dcode — Multi-Agent Orchestration on Deep Agents"
+publishedAt: "2026-08-31"
+summary: "oh-my-claudecode's multi-agent orchestration layer, ported to LangChain Deep Agents for TypeScript: an 18-agent roster, tiered model routing, and workflow skills, shipped as a TS SDK and a drop-in for the dcode CLI on any tool-calling model."
+images: ["/images/projects/oh-my-dcode/cover.jpg"]
+link: "https://github.com/siddicky/oh-my-dcode"
+---
+
+## The port
+
+oh-my-claudecode (OMC) turns Claude Code into a coordinated team of specialized agents: a supervisor that plans the work, delegates to focused sub-agents, routes each sub-task to a right-sized model, and verifies the result before claiming it's done. oh-my-dcode ports that coordination layer to LangChain's Deep Agents framework for TypeScript. The same organization now runs on top of any tool-calling model: Anthropic, OpenAI, Google, OpenRouter, Fireworks, Ollama, and others. It ships two ways, as a TypeScript SDK and as a drop-in for the `dcode` CLI.
+
+## What carried over
+
+The Deep Agents SDK gives you the scaffolding for a deep agent: planning, a virtual filesystem, sub-agents, skills, memory. What it doesn't give you is the organization. That's the part oh-my-dcode supplies, and each OMC concept has a concrete counterpart:
+
+- OMC's roughly nineteen specialized agents become a roster of Deep Agents sub-agents.
+- haiku/sonnet/opus model routing becomes tiered routing with premium, balanced, and budget presets.
+- The five OMC Tier-0 workflows (autopilot, ralph, ultrawork, team, ralplan) become Deep Agents skills.
+- Author/review separation, the never-self-approve rule, becomes read-only review, planning, and research agents plus a verify-before-done gate baked into the supervisor prompt.
+- OMC's multi-model cross-check becomes adversarial agents that default to a different model family for decorrelated critique.
+- The `.omc/` project layout and skills become a `.deepagents/` scaffold written by `omd init`.
+
+## A supervisor with a real gate
+
+At the top sits a supervisor running at the opus tier, carrying the operating principles, delegation rules, model routing, and a verification gate. Hand it a task and it plans the work, then delegates: an architect designs, an executor implements, a test-engineer writes the test, a verifier runs it, and a code-reviewer does the approval pass. It only reports done once the result has been verified and reviewed by an agent other than the author.
+
+## The roster
+
+Eighteen specialized agents span five lanes: research, planning, execution, review, and support. Review, planning, and research agents are read-only, so the agent that writes code is never the one that approves it. The three adversarial reviewers (critic, code-reviewer, security-reviewer) route to a different model family than the implementation tiers by default. The reasoning is simple: a model rarely catches the mistakes it is itself prone to, so giving fault-finding to a different model decorrelates blind spots.
+
+## Model routing, by task weight
+
+Routing keeps OMC's three tiers. Quick lookups, mechanical edits, and docs land at the bottom tier. Standard implementation and verification take the middle. Architecture, deep analysis, and adversarial review get the top. Three presets cover the range: premium never drops below the sonnet tier, balanced is the default, and budget collapses heavy work down a tier. Any tier can be overridden to a different provider entirely, through code, config, or environment variables, with a fixed precedence so an ambient env var never silently clobbers an explicit programmatic override.
+
+## Workflows as skills
+
+Eight workflows ship as Deep Agents skills the supervisor can invoke. Five are the OMC Tier-0 workflows. The others are a Socratic requirements interview, a durable multi-goal loop where each goal closes only when it passes its rubric, and a full pipeline that chains them end to end from idea to shipped.
+
+## Rubric grading that actually checks
+
+Pass a rubric at invoke time and a grader sub-agent wakes up. It scores the output against every criterion, injects targeted per-criterion feedback on any failure, and the agent revises until all criteria pass or an iteration cap is hit. The grader doesn't trust the transcript. It verifies empirically, running builds and tests over a shell tool, driving the UI with Playwright, and querying diagnostics over an LSP server.
+
+## Built to be tested
+
+The orchestration core has no runtime dependency on the Deep Agents SDK; the SDK is only touched at the `createOhMyDcode` boundary through a dynamic import. That keeps the core typecheckable and fully unit-testable offline. Tests run TypeScript directly through Node's native type stripping, no build step needed, and an offline smoke check exercises the whole thing end to end without any SDK or model. Node 22.6 or newer is all it asks.
+
+## Stack
+
+TypeScript on LangChain Deep Agents, model access through LangChain's provider integrations (Anthropic, OpenAI, Google, OpenRouter, Fireworks, Ollama), the `omd` CLI, and a zero-dependency node:test suite. MIT licensed. It's an independent reimplementation inspired by oh-my-claudecode and built on Deep Agents, affiliated with and endorsed by neither.
