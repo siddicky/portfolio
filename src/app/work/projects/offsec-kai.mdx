@@ -1,0 +1,29 @@
+---
+title: "KAI — AI-Powered Mentor for OffSec Learners"
+publishedAt: "2026-08-31"
+summary: "An AI tutoring system for OffSec learners that routes every question to a guided exercise assistant or a RAG content assistant. Built on LangChain/LangGraph with Pinecone, PostgreSQL checkpointing, and Langfuse observability across PEN-200, SEC-100, and SOC-200."
+---
+
+KAI is an AI-powered mentor for people training through OffSec. I built it as engagement work for OffSec, and it supports learners across three courses. The idea is simple: a student asks a question, and the system works out what kind of help that question needs before it answers.
+
+## Triage first, then the right kind of help
+
+Every question that reaches KAI passes through an info triage stage. The router decides whether a question is about a specific lab exercise or about course content in general, and that decision shapes what happens next. Students don't pick a mode; the routing happens automatically.
+
+Exercise questions land with the exercise assistant, which provides structured, step-by-step guidance for hands-on lab work. Content questions take a different path. They go to the content assistant, which answers with retrieval-augmented generation over course materials held in a Pinecone vector database.
+
+KAI also tracks each student's progress through exercise objectives, so the guidance a learner gets stays connected to where they actually are.
+
+## A state-driven workflow on LangGraph
+
+KAI is built on LangChain and LangGraph, with a state-driven conversational workflow coordinating three stages: info triage, the exercise assistant, and the content assistant. The backend is a FastAPI server with LangServe integration. Pinecone handles content retrieval, PostgreSQL checkpointing maintains conversation state across sessions, and Langfuse provides LLM monitoring and tracing.
+
+## One mentor, three courses
+
+Learners get one consistent mentor across PEN-200, SEC-100, and SOC-200. Whatever the course, the flow stays identical: triage the question, guide the exercise or retrieve the content, and carry conversation state from one session into the next.
+
+## Productionized for the platform
+
+KAI began as a Python/LangGraph mentor. It's now wrapped by a NestJS REST API on OffSec's platform, a productionized port carrying the same LangGraph tutoring graph. The graph stays the same; the delivery becomes a platform service.
+
+Building KAI meant working across the whole loop of a learner-facing LLM system: question routing, retrieval, guided generation, persistence, and observability. Langfuse tracing ties the pieces together, so every conversation can be monitored end to end.

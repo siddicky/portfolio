@@ -21,6 +21,9 @@ import { ScrollToHash, CustomMDX } from "@/components";
 import { Metadata } from "next";
 import { Projects } from "@/components/work/Projects";
 
+// Unknown slugs must hard-404 instead of streaming a prerendered shell with 200.
+export const dynamicParams = false;
+
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
   const posts = getPosts(["src", "app", "work", "projects"]);
   return posts.map((post) => ({

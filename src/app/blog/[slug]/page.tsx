@@ -22,6 +22,9 @@ import React from "react";
 import { Posts } from "@/components/blog/Posts";
 import { ShareSection } from "@/components/blog/ShareSection";
 
+// Unknown slugs must hard-404 instead of streaming a prerendered shell with 200.
+export const dynamicParams = false;
+
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
   const posts = getPosts(["src", "app", "blog", "posts"]);
   return posts.map((post) => ({

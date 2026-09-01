@@ -1,0 +1,27 @@
+---
+title: "assistant-ui-vue — AI Chat Interfaces for Vue 3"
+publishedAt: "2026-08-31"
+summary: "A Vue 3 port of assistant-ui: composable-first building blocks for AI chat interfaces, fully customizable components, full TypeScript support, and integrations with the Vercel AI SDK and LangGraph."
+images: ["/images/projects/assistant-ui-vue/cover.jpg"]
+link: "https://github.com/siddicky/assistant-ui-vue"
+---
+
+## A React toolkit, rebuilt for Vue 3
+
+assistant-ui-vue is a Vue 3 port of assistant-ui, the React library for building AI assistant interfaces. The port keeps the idea and changes the idiom: a comprehensive Vue 3 library for AI-powered chat interfaces, made up of highly customizable components and composables that work seamlessly with popular AI SDKs like the Vercel AI SDK and LangGraph. Nothing is translated halfway. The library is built from the ground up on Vue 3's Composition API, and the acknowledgments credit the original assistant-ui authors and contributors for the design it follows.
+
+## Composables instead of hooks
+
+The core translation is state. React hooks become Vue composables: `useThread` for the active thread, `useMessage` for a single entry in it, `useComposer` for the input, and `useAssistantRuntime` for the runtime underneath. Slots replace children and render props. Component names stay the same and props carry over with adaptations for Vue conventions, so the port maintains API compatibility with `@assistant-ui/react` wherever it can.
+
+## Override anything
+
+Every part of the chat surface is a component you can swap. Thread components cover the root container, the scrollable viewport, the message list, the empty state, and the scroll-to-bottom button. Message components handle content display and conditional rendering. Composer components take care of the input field, the send button, and cancel. An action bar rounds it out with copy, reload, and edit controls. None of it is locked down: the library is fully customizable, so any component or piece of styling can be overridden.
+
+## Integrations as packages
+
+The Vercel AI SDK and LangGraph aren't bolted on, and custom backends work too. Each integration ships as its own package: `@assistant-ui/vue-ai-sdk` for the Vercel AI SDK, `@assistant-ui/vue-langgraph` for LangGraph, plus `@assistant-ui/vue-markdown` for rendering and `@assistant-ui/vue-syntax-highlighter` for code blocks. Underneath them, the `assistant-stream` package provides framework-agnostic streaming utilities. The quick start shows the whole loop in a few lines: `useChatRuntime` points at a `/api/chat` route, `AssistantRuntimeProvider` wraps a `Thread`, and an Express server streams the model's response back with `streamText` from the `ai` package.
+
+## TypeScript-first, streaming-ready
+
+The library is written in TypeScript and ships full type definitions, so the composable APIs stay discoverable in the editor. Performance work targets real-time streaming, and the components are responsive and mobile-friendly out of the box. Styling starts from importable default styles and themes, and anything past that is a CSS variable override: redefine the `--aui-` variables and you have your own theme. The repo's example applications cover the patterns you'd actually reach for, from a basic chat to AI SDK v5, LangGraph agents, external stores, media processing, and message threading grouped by parent ID. It's all MIT licensed.

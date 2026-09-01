@@ -1,0 +1,15 @@
+---
+title: "A methodology for AI red-teaming"
+publishedAt: "2026-08-31"
+summary: "A safe, authorization-first approach to evaluating whether AI guardrails hold under adversarial pressure."
+---
+
+AI red-teaming starts with a boundary: test only systems you are authorized to assess. An authorization record narrows the reachable targets and sets limits on attempts, request rate, and expiry, so scope is part of the method rather than an afterthought.
+
+The next step is to make the evaluation inspectable before traffic is sent. A plan/execute split lets an operator review the intended targets, attempts, and request count before a run begins. That makes review practical and keeps an evaluation from becoming an unexamined load generator.
+
+The framework organizes evaluation around abstract categories: probes describe techniques, transforms vary how input is represented, targets receive the test, and detectors produce verdicts. Comparing a baseline with transformed inputs can help distinguish an input-normalization gap from a missing guardrail.
+
+Safety changes what the probes ask for. Instead of shipping harmful material, inert sentinels, canaries, and declared-forbidden tool calls provide observable signals that an instruction boundary was crossed. This assesses guardrail integrity without turning the test corpus into harmful content.
+
+Results need careful interpretation. A skipped or inconclusive attempt is not evidence that a system is safe, and coverage caveats belong alongside aggregate rates. The useful output is actionable evidence about the rule, channel, or boundary that needs attention.

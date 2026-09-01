@@ -1,0 +1,50 @@
+---
+title: "ai_red_teaming — Automated AI Red-Teaming Framework"
+publishedAt: "2026-08-31"
+summary: "An authorization-gated red-teaming framework for LLM systems: a probe corpus with inert sentinels instead of payloads, detectors that judge every attempt, and a report naming the guardrail that broke and how to fix it. Standard library only at the core."
+images: ["/images/projects/ai-red-teaming/cover.jpg"]
+---
+
+I built `redteam` to answer one question about an LLM or agent deployment you are authorized to test: do the guardrails actually hold? Point it at the system and it fires a corpus of attack techniques, decides for each attempt whether the guardrail held, and produces a report that names the rule that broke and how to fix it.
+
+## Standard library only
+
+The core carries zero runtime dependencies, so nothing new joins an engagement's supply chain. Bare `python -m redteam` runs on a clean Python 3.10+ install with nothing installed at all, and CI proves that on every push. An optional `dspy` extra layers a generative red-teamer on top without touching that guarantee.
+
+## Authorization enforced in code
+
+Whether pointing a tool at a system is security work or an attack depends on whether you were authorized, a fact that usually lives outside the code. This framework requires it inside the code, with three rules no config file can relax.
+
+**Default deny.** A target is reachable only if its endpoint matches a pattern in an authorization record. A blanket wildcard is rejected: it isn't an authorization.
+
+**An append-only denylist.** Operators can refuse additional hosts, and built-in entries can't be removed by a local file. The denylist is consulted before scope.
+
+**Bounded and expiring.** Attempt ceilings, request-rate ceilings, and an expiry date. Where a config asks for more, the record wins and the run notes say so.
+
+## Probes without payloads
+
+Probes never ship harmful content. Each one asks the target to violate a numbered operating rule in a way that is observable but inert: emit a random sentinel, put a canary in a URL, call a tool the config declares forbidden. A model that emits the sentinel would have emitted whatever else the injection asked for, so the security question gets answered exactly. Sentinels rotate every run, and the test suite asserts over every payload every probe produces that the repository ships no attack content.
+
+The corpus spans 35 probes across eleven families: indirect injection through seven carriers, direct injection, system-prompt and history leakage, excessive agency, output-channel exfiltration, social framing, filter evasion, insecure output handling, multi-turn escalation, tool-definition poisoning, and user-intent reframing. Coverage is cross-referenced to OWASP LLM Top 10, MITRE ATLAS, and the EAA taxonomy. Thirteen transforms sweep the corpus against an automatic baseline, so a bypass is attributable to the encoding rather than to a weak target. Twelve detectors in three tiers decide each attempt, from planted-value ground truth up to LLM-as-judge.
+
+## Registries instead of a hardcoded core
+
+Six extension points are registries: probes, transforms, detectors, targets, orchestrators, and reporters. Each registers through a decorator under a stable string id, so extending the framework means adding a module, not editing the core. A strict plan/execute split turns a config into a run plan before anything executes, and `redteam plan` shows every attempt, endpoint, and request count without sending anything.
+
+## Reports you can gate on
+
+Six report formats cover the console, machine pipelines (JSON, JSONL, SARIF for code scanning), and self-contained Markdown and HTML with remediation. Findings cite the rule that broke. The resilience score is risk-weighted, so a target can't look healthy by blocking a pile of low-severity probes while a critical one gets through, and the per-carrier and per-transform breakdowns say which channel to fix and whether the input filter normalizes. For CI, `redteam compare` diffs a run against a baseline and exits non-zero on a newly-bypassing attempt, which turns the report into a regression gate.
+
+## Try it offline
+
+The demo needs no credentials, no network, and no authorization file:
+
+```bash
+uv run redteam run --config examples/offline-demo.config.json
+```
+
+Three simulated targets, a full findings report, a risk-weighted score. From there, `redteam init` scaffolds a config and an authorization template for a real engagement.
+
+## Tested like it matters
+
+The pytest suite treats safety as structure, not convention. One group covers the authorization gate itself, because everything else measures a target while these tests decide whether the framework may touch one. Another asserts on the source tree: no ungated target construction, no shell execution, no dynamic evaluation, no TLS downgrade, no committed credentials or transcripts, and a `project.dependencies` list that stays empty, so the standard library guarantee fails loudly if anyone breaks it.

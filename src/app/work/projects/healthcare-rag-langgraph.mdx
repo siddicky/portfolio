@@ -1,0 +1,55 @@
+---
+title: "Nymble Health — Healthcare RAG Assistant"
+publishedAt: "2026-08-31"
+summary: "A healthcare coach assistant grounded in two drug monographs, built on a safety-gated LangGraph pipeline with hybrid Weaviate retrieval, citation-validated answers, and Presidio PII scrubbing."
+images: ["/images/projects/healthcare-rag-langgraph/cover.jpg"]
+link: "https://github.com/siddicky/healthcare-rag-langgraph"
+---
+
+## A coach that only speaks from the monographs
+
+Nymble Health's assistant answers questions about two medications, Lipitor and Metformin, and it answers them only from those products' official monographs. A LangGraph StateGraph runs the whole pipeline, from safety gate through retrieval, generation, and citation validation. The graph branches at runtime rather than following a rigid sequence: each query is classified by the safety gate first, then conditionally clarified, decomposed into parallel retrieval fan-outs, and merged into a single validated answer.
+
+The RAG graph isn't the surface members see. It sits underneath a coach agent that keeps schedules, reminders, document intake, and data erasure useful around it. When a member asks a drug question, the coach must call a `medical_lookup` tool that runs the grounded pipeline and relays its validated answer verbatim. The coach isn't allowed to answer from its own medical knowledge or paraphrase the result.
+
+## How a question moves through the graph
+
+Every query hits the safety gate first. A Presidio-based sanitizer scans the question and conversation history before the safety classifier runs, and it stays active even when the classifier itself is ablated. Emergency situations, personal-advice requests, out-of-scope questions, and prompt injections short-circuit straight to a templated response: no retrieval, no model-authored answer.
+
+Questions that pass the gate get refined before retrieval. Conversation history clarifies follow-ups with ambiguous references, and complex questions decompose into focused sub-queries. Those sub-queries fan out through LangGraph's parallel dispatch and merge into one de-duplicated document set, while the original query stays the thing being answered. There's deliberately no speculative racing: one answer, one validation per turn. A single sufficiency check then decides whether the merged context is enough, and an insufficient round triggers up to three targeted gap-fill retrievals before generation.
+
+Conversation memory lives in the graph's checkpointer, keyed by an opaque thread ID, and the engine streams updates as each stage completes. In production, thread persistence runs on Postgres. Validation is fail-closed too: if a generated answer can't be structured into checked statements, the system writes no answer rather than failing open.
+
+## Hybrid retrieval with a measured winner
+
+An OpenAI function call routes each query to the right Weaviate collection, one per medication. Chunks carry OpenAI embedding vectors plus Weaviate's BM25 keyword index, and hybrid search combines both with `relativeScoreFusion`, weighted slightly toward semantic similarity with an alpha of 0.65.
+
+The retrieval stack wasn't picked by taste. PageIndex, Pinecone hybrid search, and a bge reranker were all built as opt-in experiment arms, and all three lost to the Weaviate hybrid on a frozen two-stage paired gate.
+
+## Every claim gets checked
+
+Generated answers go through a multi-step validation loop before anyone sees them. The first pass produces a freeform answer with attempted citations. Structured parsing then breaks it into individual statements, each carrying a citation: which document chunk supports it, and the exact quote that does so. A verification step uses fuzzy matching to confirm each quote actually exists in the referenced chunk. Statements whose citations don't hold up get filtered out, so the final output contains only claims the source documents support.
+
+## PII care, in process
+
+Identifier scrubbing is in-process, not a sidecar. A Presidio analyzer over spaCy unions its spans with deterministic healthcare-identifier patterns covering things like health card numbers, MRNs, dates of birth, postal codes, phone numbers, and email addresses. Either detector firing is enough to scrub. Clinical codes are deliberately carved out so dosing facts stay answerable.
+
+Scrubbing runs at every sink: the safety gate's input, the checkpointed conversation history, every model-authored query, and the final answer plus follow-ups. Startup is fail-closed, with a sentinel probe and pinned model versions, so a mismatch raises an error instead of degrading quietly. HIPAA Safe Harbor serves as a coverage inventory, fifteen of eighteen categories covered or deliberately diverged, and the docs are explicit that this is not a compliance claim.
+
+## Measured results
+
+Deltas are against the inherited baseline, judged by the same frontier model on both sides:
+
+- Refusals on questions that should be refused went from 0.00 to 0.64, and numbers with clinical units leaking into refusals dropped from 0.52 to 0.04.
+- Correctness across all 86 golden questions rose from 0.75 to 0.86. The trade-off is stated plainly: 4 of the 59 answerable questions now get refused.
+- Cost per query fell from $0.028 to $0.017, with validation deliberately kept even though it accounts for roughly 90% of the bill.
+- Multi-turn safety drift improved from 0.45 to 0.36, because a refusal persists as thread state and replays deterministically.
+- PII persistence across 27 conversations dropped from 0.31 to 0.10.
+
+Run-to-run judge noise on this set is ±0.05, so nothing smaller than that gets claimed as a win.
+
+The eval harness backs all of it. 1,956 backend tests run in CI without any API key. The 86-question golden set, 45 core plus 41 held out across eight categories, runs through the real pipeline as LangSmith experiments measuring correctness, groundedness, safety behaviour, retrieval recall, latency p50/p95, and cost per stage. A multi-turn suite covers 27 conversations and 131 turns. The judge model has to pass 21 hand-labelled cases before it's trusted, and every report records the git SHA it ran at, with a seal script refusing anything from a dirty checkout.
+
+## Stack
+
+Python 3.11+, LangGraph for graph orchestration with checkpointed threads and streaming, OpenAI for generation, embeddings, and function calling, Weaviate for hybrid search, Postgres for durable thread persistence, Docling for PDF parsing and chunking, Jinja2 prompt templates, Pydantic for structured output, and Docker Compose for local Weaviate.

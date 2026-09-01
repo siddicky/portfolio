@@ -1,0 +1,31 @@
+---
+title: "TrustCallJS — Validated LLM Tool-Calling in TypeScript"
+publishedAt: "2026-08-31"
+summary: "A TypeScript port of trustcall: validated LLM tool calling and extraction on LangGraph, where validation errors get fixed with JSONPatch retries instead of full regenerations."
+images: ["/images/projects/trustcall-ts/cover.jpg"]
+link: "https://github.com/siddicky/trustcall-ts"
+---
+
+## Extraction that fixes itself
+
+Tool calling makes it easier to compose LLM calls into reliable software, but models fail in two predictable ways. They make validation errors on deeply nested schemas, and regenerating an entire object to make a small update can lose data that was already correct. TrustCallJS is a TypeScript port of the Python trustcall library, utilities for validated tool calling and extraction with retries, built on LangGraph. Its answer to both failure modes is one mechanism: when a tool call fails validation, the model doesn't start over. It generates JSONPatch operations that fix only what's broken, the patches get applied to the original arguments, and the loop runs again until the output is valid.
+
+## The extract, validate, patch loop
+
+createExtractor() builds a LangGraph StateGraph whose nodes are extract, extractUpdates, validate, and patch. The flow runs from START into extract or extractUpdates, through validate, into patch when errors exist, then to END.
+
+Every cycle works the same way. The model generates tool calls from your Zod schemas. A ValidationNode checks each tool call against those schemas and returns ToolMessages carrying either validated results or formatted errors. On errors, the model generates JSONPatch operations aimed at the failing fields, the patches are applied, and the result is revalidated. The process repeats until validation passes or max_attempts runs out, three by default and configurable per invocation. The result comes back reporting how many attempts it took.
+
+## Why patches beat regenerations
+
+Regenerating a whole object to fix one bad field spends output tokens on data that was already right, and risks dropping it. Patching keeps the correct parts untouched: only the failing parts are regenerated, existing correct data is preserved, and fixes need fewer output tokens. The same machinery powers updates. Pass an existing document and the extractor applies changes to it without information loss, so adding one color to a preferences list leaves the rest of the profile exactly as it was.
+
+## An API that stays out of the way
+
+createExtractor takes any LangChain chat model, ChatOpenAI and ChatAnthropic included, plus a tools array of Zod schemas, structured tools, or functions. Schemas convert to OpenAI function format through zod-to-json-schema. The extractor comes back with invoke() and stream(), and it accepts plain strings, single messages, message arrays in LangGraph MessagesValue shape, OpenAI-style dicts, or messages plus existing data for updates.
+
+For custom graphs, ValidationNode ships as a standalone node with pluggable error formatting, and applyJsonPatches() handles the full RFC 6902 operation set: add, remove, replace, move, copy, and test.
+
+## Port engineering notes
+
+State flows through LangGraph's Annotation.Root with custom reducers, and tool calls stay tracked by id across patch and validation cycles so a patch lands on the right call. Message detection is duck-typed with isAIMessage() and isBaseMessage() rather than instanceof, which avoids identity problems across package boundaries. The package ships as trustcalljs on npm alongside @langchain/langgraph and @langchain/core. It's MIT licensed, built with pnpm, tested with vitest, and the examples run as Deno Jupyter notebooks.

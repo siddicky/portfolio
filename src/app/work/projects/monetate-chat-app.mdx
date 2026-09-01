@@ -1,0 +1,29 @@
+---
+title: "Monetate — Monet Chat App"
+publishedAt: "2026-08-31"
+summary: "A streaming AI chat app built for Monetate: Next.js 15 and the LangGraph SDK for the chat experience, Supabase for authentication and thread management."
+images: ["/images/projects/monetate-chat-app/cover.jpg"]
+---
+
+While working with Monetate, I built Monet Chat App: an AI-powered chat application that gives users a clean interface for talking to LangGraph agents, with authentication and user management built in.
+
+## What it does
+
+The app connects to LangGraph servers so users can chat with AI agents. Responses stream in real time, and every conversation keeps its message history. Users can create and manage multiple chat threads, so separate conversations stay separate.
+
+Access is handled by Supabase. Users sign in with email and password, and admins can invite new users through a password-setup workflow. Authentication middleware protects routes, so the chat interface stays behind the sign-in wall.
+
+## The interface
+
+The chat renders full markdown, including LaTeX math, which matters when agents return technical output. The UI is built from Radix UI components styled with Tailwind CSS, and it adapts across desktop and mobile. A light and dark theme ships out of the box, powered by next-themes.
+
+## Stack
+
+- Next.js 15 with the App Router, written in TypeScript
+- LangGraph SDK for the AI integration
+- Supabase Auth for authentication and user management
+- Tailwind CSS v4 with Radix UI components
+- React Context plus Zustand for state management
+- pnpm as the package manager
+
+The result is a focused chat product: agents on the backend, streaming conversation in the browser, and Supabase keeping users, invitations, and threads in order.
