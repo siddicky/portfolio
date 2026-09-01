@@ -42,7 +42,7 @@ const home: Home = {
   image: "/images/og/home.jpg",
   label: "Home",
   title: `${person.name}'s Portfolio`,
-  description: `Portfolio website showcasing my work as a ${person.role}`,
+  description: `Portfolio website showcasing my work as an ${person.role}`,
   headline: <>AI engineer &amp; consultant who ships production LLM systems — RAG, agents, red-teaming</>,
   featured: {
     display: true,
@@ -77,16 +77,62 @@ const about: About = {
     title: "Introduction",
     description: (
       <>
-        {person.firstName} is a {person.location.split("/")[1]?.replace("_", " ")}-based {person.role.toLowerCase()} with a passion for transforming complex challenges
-        into simple, elegant design solutions. Their work spans digital interfaces, interactive
-        experiences, and the convergence of design and technology.
+        {person.firstName} is an {person.role} who builds production LLM systems:
+        retrieval-augmented (RAG) pipelines, agent systems, and AI red-teaming frameworks.
+        Her focus is turning language models into dependable software, with evaluation and
+        safety handled as part of the engineering rather than bolted on afterward.
+        <br />
+        <br />
+        She came to AI engineering from financial investigations and insolvency compliance,
+        where she analyzed financial records and supported proceedings under the Bankruptcy
+        and Insolvency Act. That regulated-industry background still shapes how she works:
+        verify the evidence, document the trail, and never claim more than the record
+        supports.
       </>
     ),
   },
   work: {
-    display: false,
+    display: true,
     title: "Work Experience",
-    experiences: [],
+    experiences: [
+      {
+        company: "OffSec",
+        timeframe: "Recent role",
+        role: "AI Engineer",
+        achievements: [
+          <>
+            Built KAI, an AI-powered mentor that helps OffSec learners triage questions and
+            work through guided exercises.
+          </>,
+          <>
+            Built OSCAR, a Slack data agent that answers natural-language questions over
+            internal data.
+          </>,
+        ],
+      },
+      {
+        company: "Monetate",
+        timeframe: "Recent engagement",
+        role: "AI Engineer",
+        achievements: [
+          <>
+            Built the Monet Chat App, a streaming chat application with agent workflows,
+            auth, and thread storage.
+          </>,
+        ],
+      },
+      {
+        company: "Nymble",
+        timeframe: "Recent engagement",
+        role: "AI Engineer",
+        achievements: [
+          <>
+            Built a healthcare RAG assistant with PII handling safeguards and an evaluation
+            pipeline.
+          </>,
+        ],
+      },
+    ],
   },
   studies: {
     display: false,
