@@ -1,0 +1,13 @@
+---
+title: "Porting TrustCall to TypeScript"
+publishedAt: "2026-08-31"
+summary: "How TrustCallJS carries a validated extraction loop into a TypeScript and LangGraph implementation."
+---
+
+TrustCallJS is a TypeScript port of TrustCall, built on LangGraph for validated tool calling and structured extraction with retries. The port focuses on two recurring problems: extracting deeply nested schemas and updating existing data without discarding information that is already correct.
+
+The core design is a graph rather than a single model call. It begins with extraction or update extraction, validates generated tool calls against Zod schemas, and routes invalid results through a patch step before trying again. That separates validation from correction while keeping the retry loop explicit.
+
+JSONPatch is the correction mechanism. Rather than regenerate an entire object after one invalid field, the model produces patch operations for the failing parts, applies them to the original arguments, and revalidates. The documented loop stops when validation passes or its configured attempt limit is reached.
+
+That design also supports updates safely. Existing schemas can be provided alongside messages, and the patch path applies targeted changes while preserving fields that did not need to change. The result is an extractor API that accepts several message formats while keeping schema validation at the center of the flow.
