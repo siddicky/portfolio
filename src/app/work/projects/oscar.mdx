@@ -1,0 +1,35 @@
+---
+title: "OSCAR — Natural-Language Data Agent on Slack"
+publishedAt: "2026-08-31"
+summary: "A Claude-powered Slack agent that answers plain-English questions over MySQL and internal systems, with a multi-agent architecture, PII anonymization, charts, CSV exports, and read-only safety."
+---
+
+{/* name-verification: searched ~/Projects/offsec/slack-ql-agent docs (README.md, CLAUDE.md, docs/) for OSCAR vs Oracle on 2026-08-31. Zero "OSCAR" matches in any .md file in the repo. The user-facing name in the repo docs is "Oracle": slack-ql-agent/AGENTS.md:3 reads 'A Slack bot ("Oracle") powered by Claude', the workspace AGENTS.md describes the repo as the '"Oracle" Claude-powered Slack bot', and CLAUDE.md uses Oracle throughout. The plan's locked title mandates OSCAR, so OSCAR is used as the public-facing name here; the discrepancy is recorded per the plan contract. Written as an MDX JSX comment because the repo's MDX v3 compiler rejects raw HTML comments. */}
+
+OSCAR is a Slack bot powered by Claude that answers questions about company data in plain English. Ask it how many customers you have in each country, or for the average order value by month as a line chart, and it turns the question into SQL, runs it against MySQL, and replies right in the thread. Charts come back as images. Oversized result sets arrive as CSV files instead of walls of text, and follow-up questions keep their context, so a thread works like a conversation with a data analyst rather than a one-shot search box.
+
+## Under the hood
+
+It's a multi-agent system. A primary Claude model runs the agentic loop: it plans tool calls, queries the database, searches code and logs, and assembles the answer. Smaller Haiku sub-agents handle the side work, anonymizing personal data in tool output, condensing verbose results, and compacting older conversation history so long threads stay inside token limits.
+
+## Safety by design
+
+The agent is read-only by design: it can query the database but never write to it, and every query is logged for audit. Two layers of PII protection run on everything it touches. Regex masking hides known sensitive columns, and an LLM anonymizer swaps real names and addresses for consistent pseudonyms before output reaches the model, then reverses the mapping when a tool call needs the real value back. Access is deny-by-default, with rules tied to Slack users or usergroups, and people connect through the bot they already have open all day.
+
+## Beyond the Slack thread
+
+The same codebase ships three agents. Alongside the Slack bot, a JIRA watcher polls for new tickets, runs each one through the full agent loop, and posts structured analysis comments with a confidence rating. A scheduler runs recurring investigations on a cron: some post digests on schedule, others stay silent and alert only when results meet criteria the user defined.
+
+## Watching the agent work
+
+Every execution is traced, tool by tool, with token usage and costs. A React and TypeScript dashboard shows the full flow, gated behind Google OAuth, so people see their own runs and admins see everything. The system also studies itself: a 45-day execution analysis covered 2,744 runs from 30 users and turned the findings, including a JIRA loop that re-analyzed the same tickets 65 times each and wasted $139, into a ranked improvement backlog.
+
+## Stack
+
+- Node.js 22, with the Slack Bolt SDK over Socket Mode
+- Claude API with streaming responses and prompt caching
+- MySQL for the data being queried and for execution traces, Redis for conversation memory
+- Optional integrations: GitLab code search, Loggly log search, LangSmith traces, JIRA analysis
+- React, TypeScript, Vite, and Tailwind for the execution dashboard
+
+I built OSCAR while working at OffSec. It started as a natural-language layer over a MySQL database and grew into this multi-agent setup one integration at a time, from searching code in GitLab repositories to reading logs, tracing model runs, and analyzing tickets on its own.
