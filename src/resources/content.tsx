@@ -2,12 +2,12 @@ import { About, Blog, Gallery, Home, Newsletter, Person, Social, Work } from "@/
 import { Row } from "@once-ui-system/core";
 
 const person: Person = {
-  firstName: "Tehreem",
-  lastName: "Siddiqui",
-  name: "Tehreem Siddiqui",
+  firstName: "Abdullah",
+  lastName: "Siddique",
+  name: "Abdullah Siddique",
   role: "AI Engineer & Consultant",
   avatar: "/images/avatar.jpg",
-  email: "tehreemsiddiqui19@gmail.com",
+  email: "",
   location: "America/Vancouver",
   languages: ["English"],
   locale: "en", // BCP 47 language tag for the HTML lang attribute, e.g., 'en', 'ja', 'zh-TW'
@@ -30,9 +30,9 @@ const social: Social = [
     essential: true,
   },
   {
-    name: "Email",
-    icon: "email",
-    link: `mailto:${person.email}`,
+    name: "LinkedIn",
+    icon: "linkedin",
+    link: "https://www.linkedin.com/in/a-sdq",
     essential: true,
   },
 ];
@@ -52,7 +52,7 @@ const home: Home = {
     href: "/work/thebehumancompany",
   },
   subline: (
-    <>A portfolio of production LLM systems spanning RAG, agents, and red-teaming.</>
+    <>7+ years across software engineering and cybersecurity — production LLM systems spanning RAG, agents, and red-teaming.</>
   ),
 };
 
@@ -60,7 +60,7 @@ const about: About = {
   path: "/about",
   label: "About",
   title: `About – ${person.name}`,
-  description: `Meet ${person.name}, ${person.role} from ${person.location}`,
+  description: `Meet ${person.name}, ${person.role} based in Vancouver, Canada`,
   tableOfContent: {
     display: false,
     subItems: false,
@@ -77,17 +77,16 @@ const about: About = {
     title: "Introduction",
     description: (
       <>
-        {person.firstName} is an {person.role} who builds production LLM systems:
-        retrieval-augmented (RAG) pipelines, agent systems, and AI red-teaming frameworks.
-        Her focus is turning language models into dependable software, with evaluation and
-        safety handled as part of the engineering rather than bolted on afterward.
+        Abdullah is an AI engineer with 7+ years across software engineering and cybersecurity.
+        He builds and operates production AI systems: multi-agent LangGraph architectures, RAG
+        pipelines, and the enterprise infrastructure around them — evaluation suites,
+        human-approval controls, tenant isolation, and PII protection.
         <br />
         <br />
-        She came to AI engineering from financial investigations and insolvency compliance,
-        where she analyzed financial records and supported proceedings under the Bankruptcy
-        and Insolvency Act. That regulated-industry background still shapes how she works:
-        verify the evidence, document the trail, and never claim more than the record
-        supports.
+        His route there runs through regulated and security-first environments: capital-market data
+        products at the Pakistan Stock Exchange, an LLB from LUMS and a BBA in Accounting &amp;
+        Finance from IoBM, and OSCP/OSEP certifications — which is why the engineering defaults
+        to evidence, authorization, and audit trails.
       </>
     ),
   },
@@ -97,40 +96,52 @@ const about: About = {
     experiences: [
       {
         company: "OffSec",
-        timeframe: "Recent role",
-        role: "AI Engineer",
+         timeframe: "Jan 2023 – Jul 2026",
+         role: "AI Engineer (Software Engineer L2, AI Innovation & Development)",
         achievements: [
           <>
-            Built KAI, an AI-powered mentor that helps OffSec learners triage questions and
-            work through guided exercises.
+             Took KAI from concept to production as an AI-powered mentor for OffSec learners.
           </>,
           <>
-            Built OSCAR, a Slack data agent that answers natural-language questions over
-            internal data.
+             Built OSCAR, a support agent that cut contextualized ticket volume by 40%.
+           </>,
+          <>
+            Built a LangGraph/Deep Agents B2B orchestrator for enterprise retention.
           </>,
         ],
       },
       {
-        company: "Monetate",
-        timeframe: "Recent engagement",
-        role: "AI Engineer",
+        company: "The Be Human Company",
+        timeframe: "Jul 2026 – Present",
+        role: "Co-Founder & CTO / Chief AI Officer",
         achievements: [
           <>
-            Built the Monet Chat App, a streaming chat application with agent workflows,
-            auth, and thread storage.
+            Building AI governance SaaS with 65+ controls and a fail-closed authorization gateway.
           </>,
         ],
       },
       {
-        company: "Nymble",
-        timeframe: "Recent engagement",
-        role: "AI Engineer",
+        company: "JSW AI Services",
+        timeframe: "May 2025 – Jan 2026",
+        role: "Principal AI Engineer",
         achievements: [
           <>
-            Built a healthcare RAG assistant with PII handling safeguards and an evaluation
-            pipeline.
+            Built Monet AI's LangGraph supervisor with MongoDB hybrid RAG, Snowflake analytics,
+            and human-approval gates.
           </>,
         ],
+      },
+      {
+        company: "Polymer Runtime Data Security",
+        timeframe: "Jul 2024 – Dec 2024",
+        role: "Senior Python Developer",
+        achievements: [<>Built PII/PHI NLP detection and DLP capabilities for SOC 2 and HIPAA.</>],
+      },
+      {
+        company: "Pakistan Stock Exchange",
+        timeframe: "Jan 2018 – Dec 2019",
+        role: "Data Vending Officer, Product & Research",
+        achievements: [<>Worked on capital-market data products.</>],
       },
     ],
   },

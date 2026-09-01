@@ -8,6 +8,8 @@ summary: "A Claude-powered Slack agent that answers plain-English questions over
 
 OSCAR is a Slack bot powered by Claude that answers questions about company data in plain English. Ask it how many customers you have in each country, or for the average order value by month as a line chart, and it turns the question into SQL, runs it against MySQL, and replies right in the thread. Charts come back as images. Oversized result sets arrive as CSV files instead of walls of text, and follow-up questions keep their context, so a thread works like a conversation with a data analyst rather than a one-shot search box.
 
+OffSec's own numbers credit OSCAR with cutting contextualized ticket volume by 40%.
+
 ## Under the hood
 
 It's a multi-agent system. A primary Claude model runs the agentic loop: it plans tool calls, queries the database, searches code and logs, and assembles the answer. Smaller Haiku sub-agents handle the side work, anonymizing personal data in tool output, condensing verbose results, and compacting older conversation history so long threads stay inside token limits.
