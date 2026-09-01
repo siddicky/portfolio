@@ -14,14 +14,14 @@ import {
 import { home, person, social } from "./content";
 
 // IMPORTANT: Replace with your own domain address - it's used for SEO in meta tags and schema
-const baseURL: string = "https://demo.magic-portfolio.com";
+const baseURL: string = "https://siddicky.ca";
 
 const routes: RoutesConfig = {
   "/": true,
   "/about": true,
   "/work": true,
   "/blog": true,
-  "/gallery": true,
+  "/gallery": false,
 };
 
 const display: DisplayConfig = {
@@ -33,7 +33,6 @@ const display: DisplayConfig = {
 // Enable password protection on selected routes
 // Set password in the .env file, refer to .env.example
 const protectedRoutes: ProtectedRoutesConfig = {
-  "/work/automate-design-handovers-with-a-figma-to-code-pipeline": true,
 };
 
 // Import and set font for each variant
@@ -195,8 +194,8 @@ const schema: SchemaConfig = {
 
 // social links — derived from the social array in content.tsx to avoid duplication
 const sameAs: SameAsConfig = {
-  threads: social.find((s) => s.name === "Threads")?.link ?? "",
-  linkedin: social.find((s) => s.name === "LinkedIn")?.link ?? "",
+  threads: "",
+  linkedin: "",
   discord: social.find((s) => s.name === "Discord")?.link ?? "",
 };
 
